@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workik AI Test Case Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.development.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        
+        .header h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        
+        .main-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0,0,0,0.15);
+            overflow: hidden;
+            min-height: 600px;
+        }
+        
+        .tab-nav {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e9ecef;
+            overflow-x: auto;
+        }
+        
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 20px 30px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            color: #6c757d;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: white;
+        }
+        
+        .tab-btn:hover:not(.active) {
+            background: #e9ecef;
+        }
+        
+        .tab-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .tab-content {
+            padding: 40px;
+            min-height: 500px;
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .setup-section {
+            max-width: 500px;
+            margin: 0 auto;
+            text-align: center;
+        }
+        
+        .github-icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 30px;
+            color: white;
+            font-size: 2rem;
+        }
+        
+        .form-group {
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .btn-full {
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .btn-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(135deg, #6c757d, #495057);
+        }
+        
+        .btn-purple {
+            background: linear-gradient(135deg, #6f42c1, #e83e8c);
+        }
+        
+        .repo-grid {
+            display: grid;
+            gap: 20px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .repo-card {
+            border: 2px solid #e1e5e9;
+            border-radius: 15px;
+            padding: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: white;
+        }
+        
+        .repo-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .repo-card h3 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.3rem;
+        }
+        
+        .repo-card p {
+            color: #6c757d;
+            margin-bottom: 15px;
+        }
+        
+        .repo-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .language-tag {
+            background: #e9ecef;
+            color: #495057;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .file-list {
+            max-height: 300px;
+            overflow-y: auto;
+            margin-bottom: 30px;
+        }
+        
+        .file-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .file-item:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .file-item.selected {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+        
+        .file-checkbox {
+            margin-right: 15px;
+        }
+        
+        .file-icon {
+            margin-right: 10px;
+            color: #6c757d;
+        }
+        
+        .summary-grid {
+            display: grid;
+            gap: 25px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .summary-card {
+            border: 2px solid #e1e5e9;
+            border-radius: 15px;
+            padding: 30px;
+            background: white;
+            transition: all 0.3s ease;
+        }
+        
+        .summary-card:hover {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        
+        .summary-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+        
+        .summary-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 10px;
+        }
+        
+        .summary-description {
+            color: #6c757d;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+        
+        .summary-meta {
+            display: flex;
+            gap: 20px;
+            font-size: 14px;
+            color: #6c757d;
+            margin-bottom: 20px;
+        }
+        
+        .coverage-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        
+        .coverage-tag {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+        
+        .code-section {
+            background: #1e1e1e;
+            border-radius: 15px;
+            padding: 25px;
+            max-height: 400px;
+            overflow: auto;
+            margin-top: 20px;
+        }
+        
+        .code-section pre {
+            color: #4ade80;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+        
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .alert {
+            padding: 15px 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .alert-success {
+            background: #d1edff;
+            color: #0c5460;
+            border: 1px solid #b8daff;
+        }
+        
+        .info-box {
+            background: #e7f3ff;
+            border: 1px solid #b8daff;
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+        }
+        
+        .info-box h4 {
+            color: #0c5460;
+            margin-bottom: 10px;
+        }
+        
+        .info-box p {
+            color: #0c5460;
+            line-height: 1.6;
+            margin-bottom: 5px;
+        }
+        
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+        
+        .demo-badge {
+            background: linear-gradient(135deg, #ff6b6b, #feca57);
+            color: white;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .tab-content {
+                padding: 20px;
+            }
+            
+            .summary-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        function WorkikTestGenerator() {
+            const [activeTab, setActiveTab] = useState('setup');
+            const [githubToken, setGithubToken] = useState('');
+            const [repositories, setRepositories] = useState([]);
+            const [selectedRepo, setSelectedRepo] = useState(null);
+            const [files, setFiles] = useState([]);
+            const [selectedFiles, setSelectedFiles] = useState([]);
+            const [testSummaries, setTestSummaries] = useState([]);
+            const [generatedCode, setGeneratedCode] = useState('');
+            const [selectedSummary, setSelectedSummary] = useState(null);
+            const [loading, setLoading] = useState(false);
+            const [error, setError] = useState('');
+            const [success, setSuccess] = useState('');
+
+            // Mock data for demo
+            const mockRepos = [
+                {
+                    id: 1,
+                    name: 'react-ecommerce',
+                    full_name: 'john/react-ecommerce',
+                    language: 'JavaScript',
+                    description: 'A modern e-commerce React application with Redux'
+                },
+                {
+                    id: 2,
+                    name: 'python-ml-pipeline',
+                    full_name: 'john/python-ml-pipeline',
+                    language: 'Python',
+                    description: 'Machine learning pipeline for data processing'
+                },
+                {
+                    id: 3,
+                    name: 'java-microservice',
+                    full_name: 'john/java-microservice',
+                    language: 'Java',
+                    description: 'Spring Boot microservice with REST APIs'
+                }
+            ];
+
+            const mockFiles = [
+                { name: 'src/components/ProductCard.js', path: 'src/components/ProductCard.js', size: 2048 },
+                { name: 'src/utils/validation.js', path: 'src/utils/validation.js', size: 1024 },
+                { name: 'src/services/apiService.js', path: 'src/services/apiService.js', size: 3072 },
+                { name: 'src/hooks/useCart.js', path: 'src/hooks/useCart.js', size: 1536 }
+            ];
+
+            const mockSummaries = [
+                {
+                    id: 1,
+                    title: 'ProductCard Component Tests',
+                    description: 'Comprehensive test suite for ProductCard component including rendering, props validation, and user interactions',
+                    framework: 'Jest + React Testing Library',
+                    testCount: 12,
+                    file: 'ProductCard.js',
+                    coverage: ['Component Rendering', 'Props Validation', 'User Interactions', 'Error Handling']
+                },
+                {
+                    id: 2,
+                    title: 'Validation Utils Tests',
+                    description: 'Unit tests for validation utility functions including email, password, and form validation',
+                    framework: 'Jest',
+                    testCount: 8,
+                    file: 'validation.js',
+                    coverage: ['Email Validation', 'Password Strength', 'Form Validation', 'Edge Cases']
+                }
+            ];
+
+            const connectToGithub = async () => {
+                if (!githubToken) {
+                    setError('Please enter your GitHub token');
+                    return;
+                }
+
+                setLoading(true);
+                setError('');
+                
+                // Simulate API call
+                setTimeout(() => {
+                    setRepositories(mockRepos);
+                    setActiveTab('repositories');
+                    setSuccess('Successfully connected to GitHub!');
+                    setLoading(false);
+                }, 1500);
+            };
+
+            const selectRepository = async (repo) => {
+                setSelectedRepo(repo);
+                setLoading(true);
+                setError('');
+                setSuccess('');
+                
+                // Simulate fetching files
+                setTimeout(() => {
+                    setFiles(mockFiles);
+                    setActiveTab('files');
+                    setLoading(false);
+                }, 1000);
+            };
+
+            const toggleFileSelection = (file) => {
+                setSelectedFiles(prev => 
+                    prev.find(f => f.path === file.path)
+                        ? prev.filter(f => f.path !== file.path)
+                        : [...prev, file]
+                );
+            };
+
+            const generateTestSummaries = async () => {
+                if (selectedFiles.length === 0) {
+                    setError('Please select at least one file');
+                    return;
+                }
+
+                setLoading(true);
+                setError('');
+                setSuccess('');
+                
+                // Simulate AI processing
+                setTimeout(() => {
+                    setTestSummaries(mockSummaries);
+                    setActiveTab('summaries');
+                    setSuccess(`Generated ${mockSummaries.length} test plans using AI!`);
+                    setLoading(false);
+                }, 2500);
+            };
+
+            const generateTestCode = async (summary) => {
+                setSelectedSummary(summary);
+                setLoading(true);
+                setError('');
+                setSuccess('');
+
+                const mockCode = `// ${summary.title}
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { ProductCard } from '../components/ProductCard';
+
+describe('ProductCard Component', () => {
+  const mockProduct = {
+    id: 1,
+    name: 'Wireless Headphones',
+    price: 99.99,
+    image: 'https://example.com/headphones.jpg',
+    rating: 4.5
+  };
+
+  test('renders product information correctly', () => {
+    render(<ProductCard product={mockProduct} />);
+    
+    expect(screen.getByText('Wireless Headphones')).toBeInTheDocument();
+    expect(screen.getByText('$99.99')).toBeInTheDocument();
+    expect(screen.getByAltText('Wireless Headphones')).toHaveAttribute('src', mockProduct.image);
+  });
+
+  test('handles add to cart button click', () => {
+    const mockOnAddToCart = jest.fn();
+    render(<ProductCard product={mockProduct} onAddToCart={mockOnAddToCart} />);
+    
+    const addButton = screen.getByText('Add to Cart');
+    fireEvent.click(addButton);
+    
+    expect(mockOnAddToCart).toHaveBeenCalledWith(mockProduct.id);
+  });
+
+  test('displays rating stars correctly', () => {
+    render(<ProductCard product={mockProduct} />);
+    
+    const ratingStars = screen.getAllByTestId('rating-star');
+    expect(ratingStars).toHaveLength(5);
+    
+    // Check filled stars
+    const filledStars = ratingStars.filter(star => 
+      star.classList.contains('filled')
+    );
+    expect(filledStars).toHaveLength(4);
+  });
+
+  test('handles missing product data gracefully', () => {
+    render(<ProductCard product={null} />);
+    
+    expect(screen.getByText('Product not available')).toBeInTheDocument();
+  });
+
+  test('validates required props', () => {
+    const consoleError = jest.spyOn(console, 'error').mockImplementation(() => {});
+    
+    render(<ProductCard />);
+    
+    expect(consoleError).toHaveBeenCalledWith(
+      expect.stringContaining('Warning: Failed prop type')
+    );
+    
+    consoleError.mockRestore();
+  });
+
+  test('handles image load error', () => {
+    render(<ProductCard product={mockProduct} />);
+    
+    const image = screen.getByAltText('Wireless Headphones');
+    fireEvent.error(image);
+    
+    expect(image).toHaveAttribute('src', '/default-product.png');
+  });
+
+  test('applies discount styling when product is on sale', () => {
+    const saleProduct = { ...mockProduct, onSale: true, originalPrice: 129.99 };
+    render(<ProductCard product={saleProduct} />);
+    
+    expect(screen.getByText('$129.99')).toHaveClass('original-price');
+    expect(screen.getByText('$99.99')).toHaveClass('sale-price');
+  });
+
+  test('shows out of stock message when inventory is zero', () => {
+    const outOfStockProduct = { ...mockProduct, inventory: 0 };
+    render(<ProductCard product={outOfStockProduct} />);
+    
+    expect(screen.getByText('Out of Stock')).toBeInTheDocument();
+    expect(screen.getByText('Add to Cart')).toBeDisabled();
+  });
+});`;
+
+                // Simulate code generation
+                setTimeout(() => {
+                    setGeneratedCode(mockCode);
+                    setActiveTab('code');
+                    setSuccess('Test code generated successfully!');
+                    setLoading(false);
+                }, 2000);
+            };
+
+            const createPullRequest = async () => {
+                setLoading(true);
+                setError('');
+                setSuccess('');
+                
+                // Simulate PR creation
+                setTimeout(() => {
+                    setSuccess('🎉 Pull request created successfully! PR #42: Add test cases for ProductCard component');
+                    setLoading(false);
+                }, 1500);
+            };
+
+            const copyToClipboard = async (text) => {
+                try {
+                    await navigator.clipboard.writeText(text);
+                    setSuccess('✅ Code copied to clipboard!');
+                } catch (err) {
+                    setError('Failed to copy code');
+                }
+            };
+
+            useEffect(() => {
+                if (success || error) {
+                    const timer = setTimeout(() => {
+                        setSuccess('');
+                        setError('');
+                    }, 5000);
+                    return () => clearTimeout(timer);
+                }
+            }, [success, error]);
+
+            return (
+                <div className="container">
+                    <div className="header">
+                        <div className="demo-badge">
+                            🚀 DEMO VERSION - Workik AI Internship Assignment
+                        </div>
+                        <h1><i className="fas fa-flask"></i> Workik AI Test Generator</h1>
+                        <p>Generate intelligent test cases for your GitHub repositories using AI</p>
+                    </div>
+
+                    {/* Alerts */}
+                    {error && (
+                        <div className="alert alert-error">
+                            <i className="fas fa-exclamation-triangle"></i>
+                            {error}
+                        </div>
+                    )}
+                    
+                    {success && (
+                        <div className="alert alert-success">
+                            <i className="fas fa-check-circle"></i>
+                            {success}
+                        </div>
+                    )}
+
+                    <div className="main-card">
+                        {/* Tab Navigation */}
+                        <div className="tab-nav">
+                            <button 
+                                className={`tab-btn ${activeTab === 'setup' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('setup')}
+                            >
+                                <i className="fab fa-github"></i>
+                                Setup
+                            </button>
+                            <button 
+                                className={`tab-btn ${activeTab === 'repositories' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('repositories')}
+                                disabled={repositories.length === 0}
+                            >
+                                <i className="fas fa-folder"></i>
+                                Repositories
+                            </button>
+                            <button 
+                                className={`tab-btn ${activeTab === 'files' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('files')}
+                                disabled={!selectedRepo}
+                            >
+                                <i className="fas fa-file-code"></i>
+                                Files
+                            </button>
+                            <button 
+                                className={`tab-btn ${activeTab === 'summaries' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('summaries')}
+                                disabled={testSummaries.length === 0}
+                            >
+                                <i className="fas fa-list-check"></i>
+                                Test Plans
+                            </button>
+                            <button 
+                                className={`tab-btn ${activeTab === 'code' ? 'active' : ''}`}
+                                onClick={() => setActiveTab('code')}
+                                disabled={!generatedCode}
+                            >
+                                <i className="fas fa-code"></i>
+                                Generated Code
+                            </button>
+                        </div>
+
+                        {/* Setup Tab */}
+                        <div className={`tab-content ${activeTab === 'setup' ? 'active' : ''}`}>
+                            <div className="setup-section">
+                                <div className="github-icon">
+                                    <i className="fab fa-github"></i>
+                                </div>
+                                <h2>Connect to GitHub</h2>
+                                <p style={{marginBottom: '30px', color: '#6c757d'}}>
+                                    Enter your GitHub personal access token to get started
+                                </p>
+
+                                <div className="form-group">
+                                    <label>GitHub Personal Access Token</label>
+                                    <input
+                                        type="password"
+                                        className="form-control"
+                                        value={githubToken}
+                                        onChange={(e) => setGithubToken(e.target.value)}
+                                        placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                                        onKeyPress={(e) => e.key === 'Enter' && connectToGithub()}
+                                    />
+                                </div>
+
+                                <button
+                                    className="btn btn-full"
+                                    onClick={connectToGithub}
+                                    disabled={loading || !githubToken}
+                                >
+                                    {loading ? (
+                                        <>
+                                            <span className="loading-spinner"></span>
+                                            Connecting...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <i className="fab fa-github"></i>
+                                            Connect to GitHub
+                                        </>
+                                    )}
+                                </button>
+
+                                <div className="info-box">
+                                    <h4><i className="fas fa-info-circle"></i> Demo Mode Active</h4>
+                                    <p><strong>For demonstration:</strong> You can enter any token to proceed</p>
+                                    <p><strong>For production:</strong> Get a real token from GitHub Settings → Developer settings → Personal access tokens</p>
+                                    <p><strong>Required permissions:</strong> repo, read:user</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Repositories Tab */}
+                        <div className={`tab-content ${activeTab === 'repositories' ? 'active' : ''}`}>
+                            <h2 style={{marginBottom: '30px'}}>Select Repository</h2>
+                            <div className="repo-grid">
+                                {repositories.map(repo => (
+                                    <div
+                                        key={repo.id}
+                                        className="repo-card"
+                                        onClick={() => selectRepository(repo)}
+                                    >
+                                        <h3>{repo.name}</h3>
+                                        <p>{repo.description}</p>
+                                        <div className="repo-meta">
+                                            <span style={{color: '#6c757d'}}>{repo.full_name}</span>
+                                            <span className="language-tag">{repo.language}</span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Files Tab */}
+                        <div className={`tab-content ${activeTab === 'files' ? 'active' : ''}`}>
+                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px'}}>
+                                <div>
+                                    <h2>Select Files for Testing</h2>
+                                    <p style={{color: '#6c757d', margin: 0}}>Repository: {selectedRepo?.name}</p>
+                                </div>
+                                <span style={{color: '#6c757d'}}>
+                                    {selectedFiles.length} file(s) selected
+                                </span>
+                            </div>
+
+                            <div className="file-list">
+                                {files.map((file, index) => (
+                                    <div
+                                        key={index}
+                                        className={`file-item ${selectedFiles.find(f => f.path === file.path) ? 'selected' : ''}`}
+                                        onClick={() => toggleFileSelection(file)}
+                                    >
+                                        <input
+                                            type="checkbox"
+                                            className="file-checkbox"
+                                            checked={!!selectedFiles.find(f => f.path === file.path)}
+                                            onChange={() => {}}
+                                        />
+                                        <i className="fas fa-file-code file-icon"></i>
+                                        <span style={{flex: 1}}>{file.name}</span>
+                                        <span style={{color: '#6c757d', fontSize: '14px'}}>
+                                            {Math.round(file.size / 1024)}KB
+                                        </span>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <button
+                                className="btn btn-full"
+                                onClick={generateTestSummaries}
+                                disabled={loading || selectedFiles.length === 0}
+                            >
+                                {loading ? (
+                                    <>
+                                        <span className="loading-spinner"></span>
+                                        Generating Test Plans...
+                                    </>
+                                ) : (
+                                    <>
+                                        <i className="fas fa-magic"></i>
+                                        Generate Test Plans with AI
+                                    </>
+                                )}
+                            </button>
+                        </div>
+
+                        {/* Test Summaries Tab */}
+                        <div className={`tab-content ${activeTab === 'summaries' ? 'active' : ''}`}>
+                            <h2 style={{marginBottom: '30px'}}>AI Generated Test Plans</h2>
+                            <div className="summary-grid">
+                                {testSummaries.map(summary => (
+                                    <div key={summary.id} className="summary-card">
+                                        <div className="summary-header">
+                                            <div style={{flex: 1}}>
+                                                <div className="summary-title">{summary.title}</div>
+                                                <div className="summary-description">{summary.description}</div>
+                                                <div className="summary-meta">
+                                                    <span><i className="fas fa-wrench"></i> {summary.framework}</span>
+                                                    <span><i className="fas fa-list"></i> {summary.testCount} tests</span>
+                                                    <span><i className="fas fa-file"></i> {summary.file}</span>
+                                                </div>
+                                            </div>
+                                            <button
+                                                className="btn btn-success"
+                                                onClick={() => generateTestCode(summary)}
+                                                disabled={loading}
+                                            >
+                                                <i className="fas fa-code"></i>
+                                                Generate Code
+                                            </button>
+                                        </div>
+                                        
+                                        <div className="coverage-tags">
+                                            {summary.coverage.map((item, idx) => (
+                                                <span key={idx} className="coverage-tag">{item}</span>
+                                            ))}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Generated Code Tab */}
+                        <div className={`tab-content ${activeTab === 'code' ? 'active' : ''}`}>
+                            <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px'}}>
+                                <h2>Generated Test Code</h2>
+                                <div style={{display: 'flex', gap: '15px'}}>
+                                    <button
+                                        className="btn btn-secondary"
+                                        onClick={() => copyToClipboard(generatedCode)}
+                                    >
+                                        <i className="fas fa-copy"></i>
+                                        Copy Code
+                                    </button>
+                                    <button
+                                        className="btn btn-purple"
+                                        onClick={createPullRequest}
+                                        disabled={loading}
+                                    >
+                                        {loading ? (
+                                            <>
+                                                <span className="loading-spinner"></span>
+                                                Creating PR...
+                                            </>
+                                        ) : (
+                                            <>
+                                                <i className="fas fa-code-branch"></i>
+                                                Create Pull Request
+                                            </>
+                                        )}
+                                    </button>
+                                </div>
+                            </div>
+
+                            {selectedSummary && (
+                                <div style={{
+                                    background: '#f8f9fa', 
+                                    padding: '20px', 
+                                    borderRadius: '10px', 
+                                    marginBottom: '20px'
+                                }}>
+                                    <h3 style={{color: '#333', marginBottom: '8px'}}>{selectedSummary.title}</h3>
+                                    <p style={{color: '#6c757d', margin: 0}}>{selectedSummary.description}</p>
+                                </div>
+                            )}
+
+                            <div className="code-section">
+                                <pre>{generatedCode || 'No code generated yet. Generate a test plan first.'}</pre>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="footer">
+                        <p>Built for Workik AI Internship Assignment by [Your Name]</p>
+                        <p style={{fontSize: '14px', marginTop: '10px'}}>
+                            Features: GitHub Integration • AI Test Generation • Pull Request Creation
+                        </p>
+                    </div>
+                </div>
+            );
+        }
+
+        ReactDOM.render(<WorkikTestGenerator />, document.getElementById('root'));
+    </script>
+</body>
+</html>
